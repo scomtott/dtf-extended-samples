@@ -4,14 +4,14 @@ The goal of this repo is to provide non trivial usage examples of the [DTF Frame
 
 The application uses DTF `AzureStorage` as its backend/persistence mechanism and .Net `DI` to manage `IOC`.
 
-## List of orchestrations
+## List of orchestrations
 
 | Name                       | Description | Arguments - separated by ; |
 | -------------------------- | ----------- | ----------| 
 | RetrieveFilmsOrchestration | Uses the [StarWarsAPI](https://swapi.dev/) to retrieve a list of films where the supplied Star Wars character appears, the results are saved in the file system | $CHARACTER_NAME;$FILE_NAME;$DELAY
 
 
-## Compiling the code
+## Compiling the code
 
 Clone the repo and build the solution using the CLI:
 
@@ -34,7 +34,7 @@ $ export DOTNET_ENVIRONMENT=development
 $ export DTF__StorageAccountConnectionString="CONNECTION_STRING"
 ```
 
-### Running the server
+### Running the server
 
 Launch the server with the following command:
 
@@ -52,7 +52,7 @@ Orchestrations can be scheduled using the syntax: `client --orchestration $NAME 
 $ dotnet run client --orchestration RetrieveFilmsOrchestration --argument "Luke;films-luke.json"
 ```
 
-## Discover and learn
+## Discover and learn
 
 - Try running multiple instances of the `server`;
 - Kill the server during different occasions (while it is processing a task or the orchestration's control flow);
