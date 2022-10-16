@@ -24,7 +24,8 @@ namespace DTFExtendedSamples.Client
         public async Task Run()
         {
             _logger.LogInformation("Starting orchestration: {orchestration}", _clientInput.Orchestration);
-            var instance = await _taskHubClient.CreateOrchestrationInstanceAsync(_clientInput.Orchestration, "V1", Guid.NewGuid().ToString(),  _clientInput.Arguments);
+            var instanceId = _clientInput.Instance ?? Guid.NewGuid().ToString();
+            var instance = await _taskHubClient.CreateOrchestrationInstanceAsync(_clientInput.Orchestration, "V1", instanceId,  _clientInput.Arguments);
             _logger.LogDebug("Created instance: {instanceId}", instance.InstanceId);
         }
     }

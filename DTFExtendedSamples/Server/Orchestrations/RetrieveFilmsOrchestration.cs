@@ -49,7 +49,7 @@ namespace DTFExtendedSamples.Server.Orchestrations
                 var films = await Task.WhenAll(filmsTasks);
 
                 // aggregate
-                await context.ScheduleTask<bool>(typeof(WriteFileTask), new WriteFileTaskInput(films, args.FileName));
+                await context.ScheduleTask<bool>(typeof(WriteFileTask), new WriteFileTaskInput(films, args.FileName, args.WriteMode, args.ClientRef));
             }
 
             return numOfFilms;
@@ -60,6 +60,8 @@ namespace DTFExtendedSamples.Server.Orchestrations
             internal string Person { get; }
             internal string FileName { get; }
             internal int SecondsDelay { get; }
+            internal char WriteMode { get; }
+            internal string? ClientRef { get; }
 
             internal ParsedArgs(string input)
             {
@@ -77,6 +79,10 @@ namespace DTFExtendedSamples.Server.Orchestrations
                     int.TryParse(args[2], out var delay);
                     this.SecondsDelay = delay;
                 }
+
+                this.WriteMode = args.Length > 3 ? args[3].ToLower().ToCharArray().First() : 'w';
+
+                this.ClientRef = args.Length > 4 ? args[4] : "_";
             }
         } 
     }

@@ -4,5 +4,6 @@ namespace DTFExtendedSamples.Client
     {
         public string? Orchestration { get; set;  }
         public string? Arguments { get; set; }
+        public string? Instance { get; set; }
     }
 }

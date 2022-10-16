@@ -28,9 +28,12 @@ namespace DTFExtendedSamples
         [Option('a', "argument", Required = false, HelpText = "An optional argument for the orchestration")]
         public string? Argument { get; set; }
 
+         [Option('i', "instance", Required = false, HelpText = "An optional name for the orchestration instance")]
+        public string? Instance { get; set; }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            _clientConfiguration.ConfigureServices(services, Orchestration ?? throw new ArgumentException("The Orchestration can't be null"), Argument);
+            _clientConfiguration.ConfigureServices(services, Orchestration ?? throw new ArgumentException("The Orchestration can't be null"), Argument, Instance);
         }
     }
 
