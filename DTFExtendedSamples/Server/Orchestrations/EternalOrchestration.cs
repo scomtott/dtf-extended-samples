@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DTFExtendedSamples.Server.Orchestrations
 {
-    public class EternalOrchestration : TaskOrchestration<int, EternalOrchestrationInput>
+    public class EternalOrchestration : TaskOrchestration<int, string>
     {
         private readonly ILogger<RetrieveFilmsOrchestration> _logger;
 
@@ -16,15 +16,19 @@ namespace DTFExtendedSamples.Server.Orchestrations
             this._logger = logger;
         }
 
-        public override async Task<int> RunTask(OrchestrationContext context, EternalOrchestrationInput input)
+        public override async Task<int> RunTask(OrchestrationContext context, string args)
         {
-            _logger.LogInformation("Doing some work at iteration: {iteration}", input.IterationCounter);
+            EternalOrchestrationInput input = new EternalOrchestrationInput(Convert.ToInt32(args));
 
-            _logger.LogDebug("Waiting for 10 seconds");
+            _logger.LogInformation("Doing some work at iteration: {}", input.IterationCounter);
+
+            var result = await context.ScheduleTask<EternalOrchestrationResult>(typeof(EternalOrchestrationTask), input);
+
+            _logger.LogDebug("Waiting for 10 seconds after returning result: {}", result.aString);
 
             await context.CreateTimer(context.CurrentUtcDateTime.Add(TimeSpan.FromSeconds(10)), "delayTimer");
             
-            context.ContinueAsNew(new EternalOrchestrationInput(input.IterationCounter + 1));
+            context.ContinueAsNew(Convert.ToString(input.IterationCounter + 1));
 
             _logger.LogDebug("Before returning... ");
 

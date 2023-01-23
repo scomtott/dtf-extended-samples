@@ -22,6 +22,7 @@ namespace DTFExtendedSamples.Server
             services.AddSingleton<TaskActivity, FindPeopleTask>();
             services.AddSingleton<TaskActivity, FindFilmTask>();
             services.AddSingleton<TaskActivity, WriteFileTask>();
+            services.AddSingleton<TaskActivity, EternalOrchestrationTask>();
 
             #endregion
 
