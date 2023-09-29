@@ -14,21 +14,24 @@ namespace DTFExtendedSamples.Server
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<TaskHubClient>();
 
             #region Orchestrations
 
             services.AddSingleton<TaskOrchestration, RetrieveFilmsOrchestration>();
             services.AddSingleton<TaskOrchestration, EternalOrchestration>();
+            services.AddSingleton<TaskOrchestration, DelayedWorkOrchestration>();
             services.AddSingleton<TaskActivity, FindPeopleTask>();
             services.AddSingleton<TaskActivity, FindFilmTask>();
             services.AddSingleton<TaskActivity, WriteFileTask>();
             services.AddSingleton<TaskActivity, EternalOrchestrationTask>();
+            services.AddSingleton<TaskActivity, DelayedAsyncWorkTask>();
 
             #endregion
 
             services.AddSingleton<StarWarsAPI>();
             services.AddSingleton<IEntryPoint, ServerEntryPoint>();
-            services.AddSingleton<TaskHubClient>();
+            
             services.AddSingleton(provider =>
             {
                 var service = provider.GetService<IOrchestrationService>();

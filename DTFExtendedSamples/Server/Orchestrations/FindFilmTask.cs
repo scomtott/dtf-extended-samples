@@ -11,14 +11,15 @@ namespace DTFExtendedSamples.Server.Orchestrations
         
         private readonly StarWarsAPI _api;
         private readonly  ILogger<FindFilmTask> _logger;
-        private readonly IRandomFailure _randomFailure = new CountBasedFailure();
+        /*private readonly IRandomFailure _randomFailure = new CountBasedFailure();*/
 
         public FindFilmTask(StarWarsAPI api, ILogger<FindFilmTask> logger) => (_api, _logger) = (api, logger);
         
         protected override Film Execute(TaskContext context, string filmUrl)
         {
             _logger.LogInformation("Retrieving Film at URL {filmUrl}", filmUrl);
-            _randomFailure.EventuallyFails();
+            
+            // _randomFailure.EventuallyFails();
             return _api.GetFilm(filmUrl) ?? throw new APIException();
         }
     }
