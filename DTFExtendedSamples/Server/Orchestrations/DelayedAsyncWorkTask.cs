@@ -8,18 +8,20 @@ using Microsoft.Extensions.Logging;
 
 namespace DTFExtendedSamples.Server.Orchestrations
 {
-    public class DelayedAsyncWorkTask : AsyncTaskActivity<int, bool>
+    public class DelayedAsyncWorkTask : AsyncTaskActivity<DelayedAsyncWorkTaskInput, bool>
     {
-        private delegate void WriteToDisk(string location, string? contents);
         private readonly ILogger<DelayedAsyncWorkTask> _logger;
 
-        public DelayedAsyncWorkTask(ILogger<DelayedAsyncWorkTask> logger) => (_logger) = (logger);
-
-        protected override async Task<bool> ExecuteAsync(TaskContext context, int input)
+        public DelayedAsyncWorkTask(ILogger<DelayedAsyncWorkTask> logger)
         {
-            _logger.LogInformation($"##########################################Start waiting for {input} ms.");
-            await Task.Delay(input);
-            _logger.LogInformation($"##########################################Finished waiting for {input} ms.");
+            _logger = logger;
+        }
+
+        protected override async Task<bool> ExecuteAsync(TaskContext context, DelayedAsyncWorkTaskInput input)
+        {
+            _logger.LogInformation($"##########################################Start waiting for task {input.message}, for: {input.delayMilliseconds} ms.");
+            await Task.Delay(input.delayMilliseconds);
+            _logger.LogInformation($"##########################################Finished waiting for task {input.message}.");
             
             return true;
         }

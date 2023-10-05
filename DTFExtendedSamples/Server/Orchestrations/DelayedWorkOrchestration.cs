@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DTFExtendedSamples.Server.Models;
+using DTFExtendedSamples.Server.Extensions;
 using DurableTask.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -24,19 +25,25 @@ namespace DTFExtendedSamples.Server.Orchestrations
 
         public override async Task<int> RunTask(OrchestrationContext context, string input)
         {
-            using CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-            List<Task<bool>> delayTaskList = new List<Task<bool>>()
+            /*List<Task<bool>> delayTaskList = new List<Task<bool>>()
             {
-                context.ScheduleWithRetry<bool>(typeof(DelayedAsyncWorkTask), _retryOptions, 10000),
-                context.ScheduleWithRetry<bool>(typeof(DelayedAsyncWorkTask), _retryOptions, 10000),
-                context.ScheduleWithRetry<bool>(typeof(DelayedAsyncWorkTask), _retryOptions, 10000),
-            };
+                context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), 10000),
+                context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), 10000),
+                context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), 10000),
+            };*/
 
-            _logger.LogInformation("##########################################Awaiting DelayedAsyncTasks");
+            _logger.LogInformation(context, "##########################################DelayedWorkOrchestration started");
 
             try
             {
-                await Task.WhenAll(delayTaskList);
+                _logger.LogInformation(context, "##########################################Scheduled DelayedAsyncWorkTask 1 from DelayedWorkOrchestration");
+                await context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), new DelayedAsyncWorkTaskInput(10000, "1"));
+
+                _logger.LogInformation(context, "##########################################Scheduled DelayedAsyncWorkTask 2 from DelayedWorkOrchestration");
+                await context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), new DelayedAsyncWorkTaskInput(10000, "2"));
+
+                _logger.LogInformation(context, "##########################################Scheduled DelayedAsyncWorkTask 3 from DelayedWorkOrchestration");
+                await context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), new DelayedAsyncWorkTaskInput(10000, "3"));
             }
             catch (OperationCanceledException)
             {
@@ -45,14 +52,16 @@ namespace DTFExtendedSamples.Server.Orchestrations
             }
             
 
-            _logger.LogInformation("##########################################Finished awaiting DelayedAsyncTasks");
+            _logger.LogInformation(context, "##########################################Finished awaiting DelayedAsyncTasks from DelayedWorkOrchestration");
 
             return 0;
         }
 
-        public override void OnEvent(OrchestrationContext context, string eventName, object input)
+        public override async void OnEvent(OrchestrationContext context, string eventName, object input)
         {
-            _logger.LogInformation($"################################################## OnEvent executed. {eventName} {input}");
+            _logger.LogInformation(context, $"################################################## OnEvent started. {eventName} {input} from DelayedWorkOrchestration");
+            await context.ScheduleTask<bool>(typeof(DelayedAsyncWorkTask), new DelayedAsyncWorkTaskInput(15000, nameof(OnEvent)));
+            _logger.LogInformation(context, $"################################################## OnEvent finished from DelayedWorkOrchestration");
         }
     }
 }

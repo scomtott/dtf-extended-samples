@@ -8,19 +8,32 @@ using Microsoft.Extensions.Logging;
 
 namespace DTFExtendedSamples.Server.Orchestrations
 {
-    public class DelayedAsyncWorkTask : AsyncTaskActivity<int, bool>
+    public class RaiseEventTask : AsyncTaskActivity<(string, string), bool>
     {
-        private delegate void WriteToDisk(string location, string? contents);
-        private readonly ILogger<DelayedAsyncWorkTask> _logger;
+        private readonly ILogger<RaiseEventTask> _logger;
+        private readonly TaskHubClient _taskHubClient;
 
-        public DelayedAsyncWorkTask(ILogger<DelayedAsyncWorkTask> logger) => (_logger) = (logger);
-
-        protected override async Task<bool> ExecuteAsync(TaskContext context, int input)
+        public RaiseEventTask(
+            ILogger<RaiseEventTask> logger,
+            TaskHubClient taskHubClient)
         {
-            _logger.LogInformation($"##########################################Start waiting for {input} ms.");
-            await Task.Delay(input);
-            _logger.LogInformation($"##########################################Finished waiting for {input} ms.");
-            
+            _logger = logger;
+            _taskHubClient = taskHubClient;
+        }
+
+        protected override async Task<bool> ExecuteAsync(
+            TaskContext context,
+            (string, string) orchestrationInstanceData)
+        {
+            _logger.LogInformation($"##########################################Fire event in RaiseEventTask.");
+            var orchestrationInstance = new OrchestrationInstance()
+            {
+                ExecutionId = orchestrationInstanceData.Item1,
+                InstanceId = orchestrationInstanceData.Item2,
+            };
+
+            await _taskHubClient.RaiseEventAsync(orchestrationInstance, "eventMessageName", "eventData");
+            _logger.LogInformation($"##########################################Event fired in RaiseEventTask.");
             return true;
         }
 

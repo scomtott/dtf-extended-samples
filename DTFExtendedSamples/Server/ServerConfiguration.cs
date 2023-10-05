@@ -26,6 +26,8 @@ namespace DTFExtendedSamples.Server
             services.AddSingleton<TaskActivity, WriteFileTask>();
             services.AddSingleton<TaskActivity, EternalOrchestrationTask>();
             services.AddSingleton<TaskActivity, DelayedAsyncWorkTask>();
+            services.AddSingleton<TaskActivity, RaiseEventTask>();
+            services.AddSingleton<TaskActivity, ScheduleDelayedWorkOrchestrationTask>();
 
             #endregion
 

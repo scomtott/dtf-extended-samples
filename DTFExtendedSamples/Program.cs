@@ -8,6 +8,7 @@ using DurableTask.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace DTFExtendedSamples
 {
@@ -84,6 +85,7 @@ namespace DTFExtendedSamples
                             .GetValue<string>("StorageAccountConnectionString"),
                         TaskHubName = "dtfHub",
                         ControlQueueVisibilityTimeout = TimeSpan.FromMinutes(1),
+                        LoggerFactory = services.BuildServiceProvider().GetService<ILoggerFactory>(),
                     };
 
                     var orchestrationServiceAndClient = new AzureStorageOrchestrationService(serviceSettings);
@@ -92,7 +94,12 @@ namespace DTFExtendedSamples
                     services.AddSingleton<IOrchestrationService>(orchestrationServiceAndClient);
                     services.AddSingleton<IOrchestrationServiceClient>(orchestrationServiceAndClient);
 
+
                     app.ConfigureServices(services);
+                })
+                .ConfigureLogging((context, b) =>
+                {
+                    b.AddConsole();
                 })
                 .Build();
 

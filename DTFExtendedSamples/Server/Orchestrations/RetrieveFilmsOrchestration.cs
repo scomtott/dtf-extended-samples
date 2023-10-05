@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DTFExtendedSamples.Server.Extensions;
 using DTFExtendedSamples.Server.Models;
 using DurableTask.Core;
 using Microsoft.Extensions.Configuration;
@@ -33,29 +34,18 @@ namespace DTFExtendedSamples.Server.Orchestrations
             var peopleSearchResults = await context.ScheduleTask<SearchResult<Person>>(typeof(FindPeopleTask), args.Person);
 
             var numOfPeople = peopleSearchResults.Count;
-            // _logger.LogInformation("Number of people {numOfPeople}", numOfPeople);
 
-            // for each film
-            /*var filmsTasks = peopleSearchResults.Results.SelectMany(p => p.Films)
-                .Distinct()
-                .Select(film => context.ScheduleWithRetry<Film>(typeof(FindFilmTask), _retryOptions, film))
-                .ToArray();
+            _logger.LogInformation(context, $"##########################################ScheduleDelayedWorkOrchestrationTask scheduled from RetrieveFilmsOrchestration");
+            var orchestrationInstance = await context.ScheduleTask<OrchestrationInstance>(typeof(ScheduleDelayedWorkOrchestrationTask), "hello");
 
-            var numOfFilms = filmsTasks.Length;*/
+            _logger.LogInformation(context, $"##########################################RaiseEventTask Scheduled from RetrieveFilmsOrchestration");
+            var result2 = await context.ScheduleTask<bool>(typeof(RaiseEventTask), (orchestrationInstance.ExecutionId, orchestrationInstance.InstanceId));
 
-            // var orchestrationResult = await context.CreateSubOrchestrationInstance<int>(name: nameof(DelayedWorkOrchestration), version: "V1", "hello");
-
-            var orchestrationInstance = await _taskHubClient.CreateOrchestrationInstanceAsync(name: nameof(DelayedWorkOrchestration), version: "V1", "hello");
+            _logger.LogInformation(context, $"##########################################WaitForOrchestrationAsync RetrieveFilmsOrchestration");
+            var orchResult = await _taskHubClient.WaitForOrchestrationAsync(orchestrationInstance, TimeSpan.FromSeconds(60));
 
 
-
-            _logger.LogInformation($"##########################################Fire event in RetrieveFilmsOrchestration.");
-            await _taskHubClient.RaiseEventAsync(orchestrationInstance, "eventMessageName", "eventData");
-
-            var result = await _taskHubClient.WaitForOrchestrationAsync(orchestrationInstance, TimeSpan.FromSeconds(60));
-
-
-            _logger.LogInformation($"##########################################waiting for orchestration finished with status {result.Status}.");
+            _logger.LogInformation(context, $"##########################################WaitForOrchestrationAsync finished OrchestrationStatus: {orchResult.OrchestrationStatus}.");
 
             /*if (args.SecondsDelay > 0)
             {
@@ -65,7 +55,7 @@ namespace DTFExtendedSamples.Server.Orchestrations
 
             if (numOfFilms > 0)
             {
-                _logger.LogInformation("Number of films {numOfFilms}", numOfFilms);
+                _logger.LogInformation(context, "Number of films {numOfFilms}", numOfFilms);
                 var films = await Task.WhenAll(filmsTasks);
 
                 // aggregate
